@@ -1,0 +1,44 @@
+services:
+  proxy:
+    image: ginuerzh/gost:latest
+    container_name: xwiki-proxy
+    command:
+      - "-L"
+      - "http://:3128"
+      - "-F"
+      - "socks5://${XWIKI_LOCAL_SOCKS_HOST}:${XWIKI_LOCAL_SOCKS_PORT}"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  web:
+    image: "xwiki:${XWIKI_VERSION}-postgres-tomcat"
+    container_name: xwiki-web
+    depends_on:
+      - db
+      - proxy
+    ports:
+      - ${XWIKI_PORT:-8080}:8080
+    environment:
+      - XWIKI_VERSION=${XWIKI_VERSION}
+      - DB_USER=${XWIKI_DB_USER}
+      - DB_PASSWORD=${XWIKI_DB_PASSWORD}
+      - DB_DATABASE=${XWIKI_DB_DATABASE}
+      - DB_HOST=xwiki-db
+      - JAVA_TOOL_OPTIONS=-Dhttp.proxyHost=proxy -Dhttp.proxyPort=3128 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=3128 -Dhttp.nonProxyHosts="localhost|127.0.0.1|db|xwiki-db|proxy"
+    volumes:
+      - ${XWIKI_DATA_VOL}:/usr/local/xwiki
+
+  db:
+    image: "postgres:17"
+    container_name: xwiki-db
+    volumes:
+      - ${XWIKI_POSTGRES_VOL}:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${XWIKI_DB_PASSWORD}
+      - POSTGRES_USER=${XWIKI_DB_USER}
+      - POSTGRES_DB=${XWIKI_DB_DATABASE}
+      - POSTGRES_INITDB_ARGS=--encoding=UTF8 --locale-provider=builtin --locale=C.UTF-8
+
+volumes:
+  postgres_data:
+  xwiki_data:

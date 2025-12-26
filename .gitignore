@@ -1,0 +1,34 @@
+### VisualStudioCode ###
+.vscode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+### JetBrains ###
+.idea/
+
+### Mac ###
+.DS_Store
+.DS_Storemain
+
+### Env ###
+.env
+.env.local
+.env.*
+!.env.template
+!.env.exclude
+!.env.*.template
+
+### Distribution ###
+/dist/*
+!/dist/**/README.md
+
+### Local folders ###
+.local/
+
+### Other ###
+/backup/*
+!/backup/README.md
